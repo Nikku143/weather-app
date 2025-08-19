@@ -1,0 +1,60 @@
+import React, { useState, useEffect } from "react";
+
+export default function SearchBar() {
+  const [data, setData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+
+  // Fetch product data from API
+  useEffect(() => {
+    fetch("https://fakestoreapi.com/products")
+      .then(res => res.json())
+      .then(products =>
+        setData(products.map(p => ({ id: p.id, name: p.title })))
+      )
+      .catch(err => console.error("Error fetching data:", err));
+  }, []);
+
+  // Debounced search effect
+  useEffect(() => {
+    const delaySearch = setTimeout(() => {
+      if (searchTerm) {
+        const filtered = data.filter(item =>
+          item.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setSearchResults(filtered);
+      } else {
+        setSearchResults([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(delaySearch);
+  }, [searchTerm, data]);
+
+  return (
+    <div style={{ padding: "20px", fontFamily: "Arial" }}>
+      <input
+        type="text"
+        placeholder="Search..."
+        value={searchTerm}
+        onChange={e => setSearchTerm(e.target.value)}
+        style={{
+          padding: "8px",
+          border: "1px solid #ccc",
+          borderRadius: "5px",
+          width: "250px"
+        }}
+      />
+
+      {searchTerm && searchResults.length > 0 && (
+        <ul>
+          {searchResults.map(item => (
+            <li key={item.id}>{item.name}</li>
+          ))}
+        </ul>
+      )}
+
+      {searchTerm && searchResults.length === 0 && <p>No results found.</p>}
+    </div>
+  );
+}
