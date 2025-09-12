@@ -1,0 +1,48 @@
+itimport React, { useMemo } from "react";
+import { FixedSizeList as List } from "react-window";
+
+// Optimized Virtualized List using react-window
+// Can handle 100,000+ items efficiently
+
+//  used npm install react-window
+ // than fixed
+export default function VirtualizedListExample() {
+  const itemCount = 100000;
+  const items = useMemo(
+    () => Array.from({ length: itemCount }, (_, i) => ({ id: i + 1, text: `Item #${i + 1}` })),
+    [itemCount]
+  );
+
+  const Row = ({ index, style }) => {
+    const item = items[index];
+    return (
+      <div style={{ ...style, display: 'flex', alignItems: 'center', padding: '0 16px', borderBottom: '1px solid #e2e8f0' }}>
+        <div style={{ width: 60, opacity: 0.7 }}>{item.id}</div>
+        <div>{item.text}</div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="p-4 h-screen bg-slate-50">
+      <h1 className="text-2xl font-semibold mb-4">Virtualized List — 100,000 items</h1>
+      <div className="border rounded shadow-sm bg-white">
+        <List
+          height={600}       // viewport height
+          itemCount={items.length}
+          itemSize={48}      // fixed row height
+          width={'100%'}
+        >
+          {Row}
+        </List>
+      </div>
+    </div>
+  );
+}
+
+/* Notes:
+  - Using react-window handles huge lists efficiently.
+  - Only visible rows are rendered.
+  - Smooth scrolling even with 100,000+ items.
+  - Can easily add overscan={number} prop for smoother UX.
+*/
