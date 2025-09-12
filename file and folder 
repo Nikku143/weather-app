@@ -1,0 +1,80 @@
+import React, { useState } from "react";
+
+// Recursive Node Component
+const FileNode = ({ node, addItem }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div style={{ marginLeft: 20 }}>
+      {/* Folder / File Display */}
+      <div
+        style={{
+          cursor: node.type === "folder" ? "pointer" : "default",
+          fontWeight: node.type === "folder" ? "bold" : "normal",
+        }}
+        onClick={() => node.type === "folder" && setExpanded(!expanded)}
+      >
+        {node.type === "folder" ? (expanded ? "📂" : "📁") : "📄"} {node.name}
+      </div>
+
+      {/* If folder expanded → show children + add buttons */}
+      {expanded && node.type === "folder" && (
+        <div style={{ marginLeft: 20 }}>
+          {node.children.map((child, i) => (
+            <FileNode key={i} node={child} addItem={addItem} />
+          ))}
+
+          {/* Buttons to add file/folder */}
+          <div style={{ marginTop: 5 }}>
+            <button
+              onClick={() =>
+                addItem(node, "folder", prompt("Enter folder name"))
+              }
+            >
+              ➕ Add Folder
+            </button>
+            <button
+              onClick={() => addItem(node, "file", prompt("Enter file name"))}
+            >
+              ➕ Add File
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default function FileExplorer() {
+  const [structure, setStructure] = useState({
+    type: "folder",
+    name: "root",
+    children: [],
+  });
+
+  // Function to add file/folder
+  const addItem = (parent, type, name) => {
+    if (!name) return;
+
+    const newItem = { type, name, children: type === "folder" ? [] : [] };
+
+    const updateTree = (node) => {
+      if (node === parent) {
+        node.children.push(newItem);
+      } else if (node.children) {
+        node.children.forEach(updateTree);
+      }
+    };
+
+    const newStructure = { ...structure };
+    updateTree(newStructure);
+    setStructure({ ...newStructure });
+  };
+
+  return (
+    <div>
+      <h2>📁 React File Explorer</h2>
+      <FileNode node={structure} addItem={addItem} />
+    </div>
+  );
+}
