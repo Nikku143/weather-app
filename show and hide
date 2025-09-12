@@ -1,0 +1,75 @@
+// ToggleText.jsx
+// Single-file React component (default export) with accessibility and Tailwind classes.
+// Also includes a Jest + React Testing Library test below (copy into ToggleText.test.jsx).
+
+import React, { useState } from 'react';
+
+export default function ToggleText({ initialVisible = false }) {
+  const [visible, setVisible] = useState(initialVisible);
+  const toggle = () => setVisible(v => !v);
+  const textId = 'toggle-text-content';
+
+  return (
+    <div className="max-w-md mx-auto p-4">
+      <button
+        type="button"
+        aria-expanded={visible}
+        aria-controls={textId}
+        onClick={toggle}
+        className="px-4 py-2 rounded-lg shadow-sm border hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2"
+      >
+        {visible ? 'Hide' : 'Show'} text
+      </button>
+
+      {/* Conditional JSX: only render the element when `visible` is true */}
+      {visible && (
+        <p
+          id={textId}
+          data-testid="toggle-text"
+          className="mt-3 p-3 rounded bg-gray-50 border"
+        >
+          Surprise! 👋 This text is visible.
+        </p>
+      )}
+    </div>
+  );
+}
+
+
+// -----------------------------
+// ToggleText.test.jsx
+// Copy this content into a test file and run with Jest + @testing-library/react
+// -----------------------------
+
+/*
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
+import ToggleText from './ToggleText';
+
+describe('ToggleText component - conditional rendering', () => {
+  test('does not show text by default', () => {
+    render(<ToggleText initialVisible={false} />);
+    // queryByText returns null if not found -> appropriate for negative assertions
+    expect(screen.queryByTestId('toggle-text')).toBeNull();
+  });
+
+  test('shows text after clicking the Show button, then hides after clicking Hide', () => {
+    render(<ToggleText initialVisible={false} />);
+    const button = screen.getByRole('button', { name: /show text/i });
+
+    // Initially hidden
+    expect(screen.queryByTestId('toggle-text')).toBeNull();
+
+    // Click to show
+    fireEvent.click(button);
+    expect(screen.getByTestId('toggle-text')).toBeInTheDocument();
+    expect(button).toHaveTextContent(/hide text/i);
+
+    // Click to hide
+    fireEvent.click(button);
+    expect(screen.queryByTestId('toggle-text')).toBeNull();
+    expect(button).toHaveTextContent(/show text/i);
+  });
+});
+*/
