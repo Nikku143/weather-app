@@ -1,0 +1,82 @@
+import React, { useState } from "react";
+
+function CrudApp() {
+  const [users, setUsers] = useState([
+    { id: 1, name: "Nishant", email: "nishant@example.com" },
+    { id: 2, name: "Rahul", email: "rahul@example.com" },
+  ]);
+  const [formData, setFormData] = useState({ id: null, name: "", email: "" });
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Handle input change
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // CREATE
+  const handleAdd = () => {
+    if (!formData.name || !formData.email) return;
+    setUsers([...users, { ...formData, id: Date.now() }]);
+    setFormData({ id: null, name: "", email: "" });
+  };
+
+  // READ - already showing in UI
+
+  // UPDATE
+  const handleEdit = (user) => {
+    setIsEditing(true);
+    setFormData(user);
+  };
+
+  const handleUpdate = () => {
+    setUsers(users.map((u) => (u.id === formData.id ? formData : u)));
+    setIsEditing(false);
+    setFormData({ id: null, name: "", email: "" });
+  };
+
+  // DELETE
+  const handleDelete = (id) => {
+    setUsers(users.filter((u) => u.id !== id));
+  };
+
+  return (
+    <div style={{ padding: "20px" }}>
+      <h2>CRUD App in React</h2>
+
+      {/* Form */}
+      <input
+        type="text"
+        name="name"
+        placeholder="Enter name"
+        value={formData.name}
+        onChange={handleChange}
+      />
+      <input
+        type="email"
+        name="email"
+        placeholder="Enter email"
+        value={formData.email}
+        onChange={handleChange}
+      />
+
+      {isEditing ? (
+        <button onClick={handleUpdate}>Update</button>
+      ) : (
+        <button onClick={handleAdd}>Add</button>
+      )}
+
+      {/* User List */}
+      <ul>
+        {users.map((user) => (
+          <li key={user.id}>
+            {user.name} ({user.email}){" "}
+            <button onClick={() => handleEdit(user)}>Edit</button>
+            <button onClick={() => handleDelete(user.id)}>Delete</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default CrudApp;
