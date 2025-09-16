@@ -1,0 +1,104 @@
+import React, { useEffect, useState } from "react";
+
+export default function App() {
+  const [products, setProducts] = useState([]);
+  const [cart, setCart] = useState([]);
+
+  // Fetch products from dummy API
+  useEffect(() => {
+    fetch("https://dummyjson.com/products?limit=6")
+      .then((res) => res.json())
+      .then((data) => setProducts(data.products));
+  }, []);
+
+  // Add item to cart
+  const addToCart = (product) => {
+    const existing = cart.find((item) => item.id === product.id);
+    if (existing) {
+      setCart(
+        cart.map((item) =>
+          item.id === product.id ? { ...item, qty: item.qty + 1 } : item
+        )
+      );
+    } else {
+      setCart([...cart, { ...product, qty: 1 }]);
+    }
+  };
+
+  // Remove item
+  const removeFromCart = (id) => {
+    setCart(cart.filter((item) => item.id !== id));
+  };
+
+  // Update quantity
+  const updateQty = (id, qty) => {
+    if (qty < 1) return;
+    setCart(
+      cart.map((item) => (item.id === id ? { ...item, qty } : item))
+    );
+  };
+
+  // Calculate total
+  const getTotal = () => {
+    return cart.reduce((total, item) => total + item.price * item.qty, 0);
+  };
+
+  return (
+    <div style={{ padding: "20px", fontFamily: "Arial" }}>
+      <h2>🛒 Shopping Cart with Dummy API</h2>
+
+      {/* Product List */}
+      <h3>Products</h3>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
+        {products.map((product) => (
+          <div
+            key={product.id}
+            style={{
+              border: "1px solid #ccc",
+              borderRadius: "10px",
+              padding: "10px",
+              width: "180px",
+              textAlign: "center",
+            }}
+          >
+            <img
+              src={product.thumbnail}
+              alt={product.title}
+              style={{ width: "100%", height: "120px", objectFit: "cover" }}
+            />
+            <p>{product.title}</p>
+            <p>${product.price}</p>
+            <button onClick={() => addToCart(product)}>Add to Cart</button>
+          </div>
+        ))}
+      </div>
+
+      {/* Cart Section */}
+      <h3>Cart</h3>
+      {cart.length === 0 && <p>Cart is empty.</p>}
+      {cart.map((item) => (
+        <div key={item.id} style={{ marginBottom: "10px" }}>
+          {item.title} - ${item.price} ×{" "}
+          <input
+            type="number"
+            value={item.qty}
+            onChange={(e) => updateQty(item.id, parseInt(e.target.value))}
+            style={{ width: "50px" }}
+          />
+          = ${item.price * item.qty}
+          <button
+            onClick={() => removeFromCart(item.id)}
+            style={{ marginLeft: "10px" }}
+          >
+            ❌
+          </button>
+        </div>
+      ))}
+
+      {/* Total */}
+      {cart.length > 0 && (
+        <h3>Total: ${getTotal()}</h3>
+      )}
+    </div>
+  );
+}
